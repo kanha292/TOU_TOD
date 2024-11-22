@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Tariff Monitoring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdfdfd;
+            color: #333;
+        }
+        header {
+            background-color: #0288d1;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+        }
+        header .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        header nav ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        header nav ul li {
+            margin: 0 15px;
+        }
+        header nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .feature-section {
+            text-align: center;
+            padding: 50px;
+        }
+        .feature-section h2 {
+            font-size: 2.8rem;
+            color: #0288d1;
+            margin-bottom: 20px;
+        }
+        .feature-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .live-tariff {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #0288d1;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .live-tariff h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .live-tariff p {
+            font-size: 1.2rem;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SolarOptimizer</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="tariff.html">Tariff Monitoring</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section class="feature-section">
+        <h2>Real-Time Tariff Monitoring</h2>
+        <p>
+            Stay updated with live electricity tariffs and plan your energy consumption efficiently. 
+            This feature helps you save money by utilizing low-tariff periods for high-energy appliances.
+        </p>
+        <div class="live-tariff">
+            <h3>Current Tariff</h3>
+            <p id="time">Fetching current time...</p>
+            <p id="tariff">Fetching tariff...</p>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2024 SolarOptimizer. All Rights Reserved.</p>
+    </footer>
+    <script>
+        // Load model data (tariff_model.json) dynamically
+        async function loadModel() {
+            try {
+                const response = await fetch("tariff_model.json");
+                if (!response.ok) throw new Error("Failed to fetch model");
+                const modelData = await response.json();
+                return modelData; // JSON containing tariff predictions
+            } catch (error) {
+                console.error("Error loading model:", error);
+                return null;
+            }
+        }
+
+        // Update live time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString(); // e.g., "2:30:15 PM"
+            document.getElementById("time").textContent = `Current Time: ${timeString}`;
+        }
+
+        // Predict tariff based on the current time
+        function predictTariff(model) {
+            const now = new Date();
+            const currentHour = now.getHours(); // Get current hour (0-23)
+            const rate = model[currentHour] || "No data"; // Default fallback to "No data"
+            document.getElementById("tariff").textContent = `Tariff Rate: ${rate} Rs/unit`;
+        }
+
+        // Main function to update time and tariff periodically
+        async function updateTimeAndTariff() {
+            const model = await loadModel();
+            if (model) {
+                setInterval(() => {
+                    updateTime(); // Update live time
+                    predictTariff(model); // Update tariff
+                }, 1000); // Update every second
+                updateTime();
+                predictTariff(model);
+            } else {
+                document.getElementById("tariff").textContent = "Error loading tariff data";
+            }
+        }
+
+        updateTimeAndTariff(); // Start the process
+    </script>
+</body>
+</html>

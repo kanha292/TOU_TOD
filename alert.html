@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Energy Usage Alerts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #0288d1;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+        }
+        header h1 {
+            margin: 0;
+        }
+        #current-time {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .navigation {
+            text-align: center;
+            background-color: #0277bd;
+            padding: 10px;
+        }
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            margin: 0 10px;
+            border-radius: 5px;
+        }
+        .navigation a:hover {
+            background-color: #01579b;
+        }
+        .content {
+            padding: 20px;
+        }
+        .alert {
+            background-color: #e3f2fd;
+            border-left: 5px solid #0288d1;
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .alert h3 {
+            margin: 0 0 5px;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #333;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <div class="navigation">
+        <a href="index.html">Home</a>
+        <a href="features.html">Features</a>
+    </div>
+
+    <header>
+        <h1>Live Energy Usage Alerts</h1>
+        <div id="current-time">Current Time: --:--:--</div>
+    </header>
+
+    <div class="content" id="alerts"></div>
+
+    <footer>
+        <p>&copy; 2024 EnergyOptimizer. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Price data by hour
+        const prices = {
+            0: 9.59, 1: 8.50, 2: 7.90, 3: 7.50, 4: 6.80, 5: 6.50,
+            6: 9.44, 7: 8.30, 8: 7.75, 9: 7.20, 10: 6.90, 11: 6.40,
+            12: 4.46, 13: 5.00, 14: 5.50, 15: 5.80, 16: 5.20, 17: 4.90,
+            18: 3.50, 19: 4.00, 20: 4.50, 21: 5.00, 22: 6.00, 23: 7.00
+        };
+
+        // Product list with approximate power consumption
+        const products = [
+            { name: "Electric Kettle", power: 1500 },
+            { name: "Microwave", power: 1200 },
+            { name: "Refrigerator", power: 300 },
+            { name: "Air Conditioner (1 Ton)", power: 1500 },
+            { name: "Ceiling Fan", power: 75 },
+            { name: "Smartphone Charger", power: 10 },
+            { name: "Electric Bicycle", power: 750 }
+        ];
+
+        const lowCostThreshold = 5.00;
+        const mediumCostThreshold = 7.00;
+
+        function getCurrentHour() {
+            return new Date().getHours();
+        }
+
+        function updateLiveTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById("current-time").textContent = `Current Time: ${timeString}`;
+        }
+
+        function updateAlerts() {
+            const currentHour = getCurrentHour();
+            const currentPrice = prices[currentHour];
+            const alerts = document.getElementById("alerts");
+            alerts.innerHTML = ""; // Clear previous alerts
+
+            let message = "";
+            let recommendedProducts = [];
+            if (currentPrice <= lowCostThreshold) {
+                message = "Best time to use high-power appliances.";
+                recommendedProducts = products.filter(product => product.power > 1000);
+            } else if (currentPrice <= mediumCostThreshold) {
+                message = "Good time to use medium-power appliances.";
+                recommendedProducts = products.filter(product => product.power > 300 && product.power <= 1000);
+            } else {
+                message = "Avoid high-power appliances. Use low-power devices only.";
+                recommendedProducts = products.filter(product => product.power <= 300);
+            }
+
+            // Create alert box
+            const alertBox = document.createElement("div");
+            alertBox.className = "alert";
+            alertBox.innerHTML = `
+                <h3>Current Hour: ${currentHour}:00 - ${currentHour + 1}:00</h3>
+                <p>Price: ₹${currentPrice.toFixed(2)}/unit</p>
+                <p>${message}</p>
+                <p><strong>Recommended Products:</strong></p>
+                <ul>
+                    ${recommendedProducts.map(product => `<li>${product.name} (${product.power}W)</li>`).join("")}
+                </ul>
+            `;
+            alerts.appendChild(alertBox);
+        }
+
+        // Update live time every second
+        setInterval(updateLiveTime, 1000);
+
+        // Update alerts every 5 minutes
+        updateAlerts();
+        setInterval(updateAlerts, 300000); // 300,000 ms = 5 minutes
+    </script>
+</body>
+</html>

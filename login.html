@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | SolarOptimizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #0288d1;
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #0288d1;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        .input-group input:focus {
+            border-color: #0288d1;
+        }
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #0288d1;
+            color: white;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+        }
+        .cta-button:hover {
+            background-color: #0277bd;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        SolarOptimizer - Login
+    </header>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Login to Your Account</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <a href="javascript:void(0);" class="cta-button" onclick="submitLogin()">Login</a>
+            </form>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 SolarOptimizer. All Rights Reserved.</p>
+    </footer>
+    <script>
+        function submitLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Sending login details to the server
+            fetch('http://localhost:5005/login', {  // Your server endpoint for login
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Login Successful!');
+                    window.location.href = 'index.html'; // Redirect to welcome page
+                } else {
+                    alert('Invalid Email or Password!');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert('Login failed. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

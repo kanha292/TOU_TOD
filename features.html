@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdfdfd;
+            color: #333;
+        }
+        header {
+            background-color: #0288d1;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+        }
+        header .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        header nav ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        header nav ul li {
+            margin: 0 15px;
+        }
+        header nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .features {
+            text-align: center;
+            padding: 50px;
+            background-color: #f9f9f9;
+        }
+        .features h2 {
+            font-size: 2.8rem;
+            color: #0288d1;
+            margin-bottom: 20px;
+        }
+        .features p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        .feature-card i {
+            font-size: 3rem;
+            color: #0288d1;
+            margin-bottom: 15px;
+        }
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .feature-card p {
+            font-size: 1rem;
+            color: #666;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SolarOptimizer</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section class="features">
+        <h2>Our Features</h2>
+        <p>Discover the cutting-edge tools and functionalities we offer to make your energy management smarter and more efficient.</p>
+        <div class="feature-grid">
+            <a href="tariff.html" class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Real-Time Tariff Monitoring</h3>
+                <p>Stay updated with live electricity tariffs and plan your energy consumption efficiently.</p>
+            </a>
+            <a href="smart.html" class="feature-card">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Smart Scheduling</h3>
+                <p>Automate high-energy appliances to run during low-tariff periods for cost efficiency.</p>
+            </a>
+            <a href="energy.html" class="feature-card">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Energy Analytics</h3>
+                <p>Analyze your energy usage patterns and get actionable recommendations to save more.</p>
+            </a>
+            <a href="alert.html" class="feature-card">
+                <i class="fas fa-bell"></i>
+                <h3>Alerts & Notifications</h3>
+                <p>Get instant alerts about high-tariff periods and energy-saving opportunities.</p>
+            </a>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2024 SolarOptimizer. All Rights Reserved.</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+</body>
+</html>
