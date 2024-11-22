@@ -3,102 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar Energy Optimization</title>
+    <title>Welcome to SolarOptimizer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
             margin: 0;
             padding: 0;
-            background-color: #f3f3f3;
+            text-align: center;
             color: #333;
         }
         header {
             background-color: #0288d1;
             color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 15px 30px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            font-size: 2rem;
+            text-align: center;
         }
-        header .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        header nav ul {
-            list-style: none;
+        .button-container {
             display: flex;
-            margin: 0;
-            padding: 0;
-        }
-        header nav ul li {
-            margin: 0 15px;
-        }
-        header nav ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        .hero {
-            display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            padding: 50px;
-            background: linear-gradient(to right, #0288d1, #00c853);
-            color: white;
-        }
-        .hero h2 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
+            height: 80vh;
+            gap: 20px;
         }
         .cta-button {
-            text-decoration: none;
-            padding: 12px 25px;
-            background-color: white;
-            color: #0288d1;
-            border-radius: 5px;
-            font-size: 1rem;
+            padding: 15px 30px;
+            font-size: 1.2rem;
             font-weight: bold;
+            text-decoration: none;
+            background-color: #0288d1;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            display: inline-block;
+            width: 200px;
         }
-        .hero-image {
-            max-width: 50%;
-            border-radius: 10px;
+        .cta-button:hover {
+            background-color: #0277bd;
         }
         footer {
-            text-align: center;
-            padding: 20px;
+            padding: 10px;
             background-color: #333;
             color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">SolarOptimizer</div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About Us</a></li>
-                <li><a href="features.html">Features</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
+        Welcome to SolarOptimizer
     </header>
-    <section class="hero">
-        <div>
-            <h2>Optimize Your Solar Energy Usage</h2>
-            <p>Monitor real-time tariffs and manage energy efficiently.</p>
-            <a href="features.html" class="cta-button">Explore Features</a>
-        </div>
-        <img src="img3.png" alt="Solar Energy" class="hero-image">
-    </section>
+    <div class="button-container">
+        <a href="register.html" class="cta-button">Create Account</a>
+        <a href="login.html" class="cta-button">Login</a>
+    </div>
     <footer>
         <p>&copy; 2024 SolarOptimizer. All Rights Reserved.</p>
     </footer>
