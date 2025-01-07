@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tariff-Based Usage Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background-color: #0288d1;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .container h2 {
+            color: #0288d1;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .item-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        .item-list label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+            cursor: pointer;
+        }
+        .item-list input {
+            margin-right: 10px;
+        }
+        .live-info {
+            padding: 15px;
+            background-color: #e0f7fa;
+            color: #00695c;
+            border: 1px solid #b2dfdb;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .live-info span {
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #0288d1;
+            color: white;
+            margin-top: 30px;
+        }
+        #charts {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        canvas {
+            width: 45%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Usage Optimization Based on Tariff</h1>
+    </header>
+
+    <div class="container">
+        <h2>Select Your Items</h2>
+        <div id="tariffRate">
+            Current Tariff Rate: Fetching...
+        </div>
+        <p>Select the items you are currently using from the list below:</p>
+        <div class="item-list">
+            <!-- Items list dynamically populated here -->
+        </div>
+
+        <div id="dynamicInputs" class="form-group">
+            <!-- Dynamic input fields for item quantities will appear here -->
+        </div>
+
+        <div class="live-info" id="liveInfo" style="display: none;">
+            <p>Time: <span id="timeDisplay">0</span> seconds</p>
+            <p>Energy Consumed: <span id="energyConsumed">0</span> kWh</p>
+            <p>Total Cost: ₹<span id="totalCost">0.00</span></p>
+        </div>
+
+        <div id="charts">
+            <canvas id="totalEnergyChart"></canvas>
+            <canvas id="itemEnergyChart"></canvas>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 SolarOptimizer. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const items = [
+            { name: "Electric Kettle", power: 1500 },
+            { name: "Microwave Oven", power: 1200 },
+            { name: "Refrigerator", power: 300 },
+            { name: "Air Conditioner (1 Ton)", power: 1500 },
+            { name: "Ceiling Fan", power: 75 },
+            { name: "Washing Machine", power: 500 },
+            { name: "Laptop Charger", power: 100 },
+            { name: "Smartphone Charger", power: 20 },
+            { name: "Hair Dryer", power: 2000 },
+            { name: "Electric Iron", power: 1000 },
+            { name: "Dishwasher", power: 1200 },
+            { name: "Electric Heater", power: 1500 },
+            { name: "TV", power: 200 },
+            { name: "Electric Cooktop", power: 1800 },
+            { name: "Oven", power: 1500 }
+        ];
+
+        const tariffRates = {
+            "0": 9.59, "1": 8.50, "2": 7.90, "3": 7.50, "4": 6.80,
+            "5": 6.50, "6": 9.44, "7": 8.30, "8": 7.75, "9": 7.20,
+            "10": 6.90, "11": 6.40, "12": 4.46, "13": 5.00, "14": 5.50,
+            "15": 5.80, "16": 5.20, "17": 4.90, "18": 3.50, "19": 4.00,
+            "20": 4.50, "21": 5.00, "22": 6.00, "23": 7.00
+        };
+
+        let totalTime = 0; // in seconds
+        let totalPowerInKw = 0; // in kW
+        let selectedItems = [];
+        let itemQuantities = {};
+        let energyData = [];
+        let totalEnergyData = [];
+
+        const totalEnergyChart = new Chart(document.getElementById("totalEnergyChart"), {
+            type: 'line',
+            data: {
+                labels: [], // Time labels
+                datasets: [{
+                    label: 'Energy Used per Hour (kWh)',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            }
+        });
+
+        const itemEnergyChart = new Chart(document.getElementById("itemEnergyChart"), {
+            type: 'bar',
+            data: {
+                labels: [], // Item names
+                datasets: [{
+                    label: 'Energy Consumption (kWh)',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            }
+        });
+
+        function populateItems() {
+            const itemList = document.querySelector('.item-list');
+            items.forEach((item, index) => {
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" value="${index}" id="item-${index}">
+                    ${item.name} (${item.power}W)
+                `;
+                itemList.appendChild(label);
+            });
+        }
+
+        function handleItemSelection() {
+            const dynamicInputs = document.getElementById("dynamicInputs");
+            dynamicInputs.innerHTML = ''; // Clear existing inputs
+
+            selectedItems = Array.from(document.querySelectorAll('.item-list input:checked'))
+                .map(input => items[input.value]);
+
+            // For each selected item, add a corresponding input field for quantity
+            selectedItems.forEach((item, index) => {
+                const label = document.createElement('label');
+                label.textContent = `How many ${item.name.toLowerCase()}?`;
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `quantity-${index}`;
+                input.min = 1;
+                input.value = 1;
+
+                label.appendChild(input);
+                dynamicInputs.appendChild(label);
+            });
+
+            updateEnergyConsumption();
+        }
+
+        function updateEnergyConsumption() {
+            totalPowerInKw = 0;
+            energyData = [];
+            totalEnergyData = [];
+            let totalEnergyConsumed = 0;
+
+            selectedItems.forEach((item, index) => {
+                const quantity = parseInt(document.getElementById(`quantity-${index}`).value) || 1;
+                const energyConsumed = (item.power * quantity) / 1000; // in kWh
+                energyData.push(energyConsumed);
+
+                totalEnergyConsumed += energyConsumed;
+            });
+
+            // Update charts
+            totalEnergyChart.data.labels.push(`Time: ${totalTime}s`);
+            totalEnergyChart.data.datasets[0].data.push(totalEnergyConsumed);
+
+            totalEnergyChart.update();
+            itemEnergyChart.data.labels = selectedItems.map(item => item.name);
+            itemEnergyChart.data.datasets[0].data = energyData;
+            itemEnergyChart.update();
+
+            const currentTariff = getCurrentTariff();
+            const totalCost = totalEnergyConsumed * currentTariff;
+
+            document.getElementById("energyConsumed").textContent = totalEnergyConsumed.toFixed(2);
+            document.getElementById("totalCost").textContent = totalCost.toFixed(2);
+        }
+
+        function getCurrentTariff() {
+            const hour = new Date().getHours();
+            return tariffRates[hour];
+        }
+
+        function updateTariffDisplay() {
+            const currentTariff = getCurrentTariff();
+            document.getElementById("tariffRate").textContent = `Current Tariff Rate: ₹${currentTariff.toFixed(2)}`;
+        }
+
+        function startTimer() {
+            setInterval(() => {
+                totalTime++;
+                document.getElementById("timeDisplay").textContent = totalTime;
+                updateEnergyConsumption();
+                updateTariffDisplay(); // Update tariff every second
+            }, 1000);
+        }
+
+        window.onload = () => {
+            populateItems();
+            startTimer();
+            document.querySelector('.item-list').addEventListener('change', handleItemSelection);
+        }
+    </script>
+</body>
+</html>
