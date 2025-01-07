@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Energy Analytics</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,55 +20,29 @@
             text-align: center;
             padding: 20px;
         }
-        header h1 {
-            font-size: 2.5rem;
-        }
-        nav {
-            background-color: #0288d1;
-            padding: 10px 0;
-            text-align: center;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 1.2rem;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
         .content {
             max-width: 800px;
             margin: 50px auto;
             padding: 20px;
         }
-        .content h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #0288d1;
-            text-align: center;
-        }
-        .content p {
-            font-size: 1.2rem;
-            line-height: 1.8;
-        }
         .chart-container {
             width: 100%;
             height: 400px;
             margin: 30px 0;
-            background-color: white; /* Ensure white background for the container */
+            background-color: white;
             padding: 10px;
-            border: 1px solid #ddd; /* Add border for better visibility */
+            border: 1px solid #ddd;
             border-radius: 5px;
+        }
+        .filter-container {
+            text-align: center;
+            margin-bottom: 20px;
         }
         footer {
             text-align: center;
             padding: 15px;
-            background-color: #0288d1; /* Changed to blue for better visibility */
+            background-color: #0288d1;
             color: white;
-        }
-        canvas {
-            background-color: white !important; /* Force white background for the canvas */
         }
     </style>
 </head>
@@ -76,20 +51,15 @@
         <h1>Energy Analytics</h1>
     </header>
 
-    <!-- Navigation Bar -->
-    <nav>
-        <a href="start.html">Home</a>
-        <a href="features.html">Features</a>
-    </nav>
-
     <div class="content">
-        <h2>Track & Analyze Energy Usage</h2>
-        <p>
-            Get detailed insights into your energy usage patterns and discover opportunities to save energy. 
-            Our analytics tools provide you with actionable recommendations tailored to your usage.
-        </p>
-        
-        <!-- Live Tariff Graph -->
+        <div class="filter-container">
+            <label for="weekFilter">Select Week:</label>
+            <select id="weekFilter">
+                <!-- Options will be generated dynamically -->
+            </select>
+        </div>
+
+        <!-- Tariff Graph -->
         <div class="chart-container">
             <canvas id="tariffChart"></canvas>
         </div>
@@ -105,49 +75,58 @@
     </footer>
 
     <script>
-        const labels = [
-            '48h ago', '47h ago', '46h ago', '45h ago', '44h ago', '43h ago', '42h ago', '41h ago',
-            '40h ago', '39h ago', '38h ago', '37h ago', '36h ago', '35h ago', '34h ago', '33h ago',
-            '32h ago', '31h ago', '30h ago', '29h ago', '28h ago', '27h ago', '26h ago', '25h ago',
-            '24h ago', '23h ago', '22h ago', '21h ago', '20h ago', '19h ago', '18h ago', '17h ago',
-            '16h ago', '15h ago', '14h ago', '13h ago', '12h ago', '11h ago', '10h ago', '9h ago',
-            '8h ago', '7h ago', '6h ago', '5h ago', '4h ago', '3h ago', '2h ago', '1h ago', 'Now'
-        ];
-
-        const prices = [
-            9.59, 8.50, 7.90, 7.50, 6.80, 6.50, 9.44, 8.30, 7.75, 7.20, 6.90, 6.40,
-            4.46, 5.00, 5.50, 5.80, 5.20, 4.90, 3.50, 4.00, 4.50, 5.00, 6.00, 7.00,
-            9.59, 8.50, 7.90, 7.50, 6.80, 6.50, 9.44, 8.30, 7.75, 7.20, 6.90, 6.40,
-            4.46, 5.00, 5.50, 5.80, 5.20, 4.90, 3.50, 4.00
-        ];
+        // Generate daily data for 500 weeks (3500 days)
+        const totalDays = 500 * 7;
+        const dailyLabels = Array.from({ length: totalDays }, (_, i) => `${totalDays - i} days ago`).concat(['Today']);
+        const dailyTariffPrices = Array.from({ length: totalDays }, () => (Math.random() * (10 - 3) + 3).toFixed(2));
 
         const products = [
             { name: "Electric Kettle", power: 1500 },
             { name: "Microwave", power: 1200 },
             { name: "Refrigerator", power: 300 },
             { name: "Air Conditioner (1 Ton)", power: 1500 },
-            { name: "Ceiling Fan", power: 75 },
-            { name: "Smartphone Charger", power: 10 },
-            { name: "Electric Bicycle", power: 750 }
+            { name: "Ceiling Fan", power: 75 }
         ];
+        const dailyEnergyConsumption = products.map(product => 
+            Array.from({ length: totalDays }, () => ((product.power * (Math.random() + 0.5)) / 1000).toFixed(2))
+        );
 
-        // Adding random variation to energy consumption
-        const energyConsumption = products.map(product => {
-            return labels.map(() => {
-                let randomVariation = (Math.random() - 0.5) * 0.5; // Adds variation between -0.25 and 0.25
-                return ((product.power * 1) / 1000) + randomVariation; // Add random variation to energy consumption
-            });
-        });
-
-        // Tariff Chart
         const ctx1 = document.getElementById('tariffChart').getContext('2d');
+        const ctx2 = document.getElementById('energyConsumptionChart').getContext('2d');
+
+        const weekFilter = document.getElementById('weekFilter');
+        for (let i = 0; i <= 500; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i === 0 ? 'This Week' : `${i} Weeks Ago`;
+            weekFilter.appendChild(option);
+        }
+
+        function updateCharts(weekIndex) {
+            const start = totalDays - (weekIndex + 1) * 7;
+            const end = totalDays - weekIndex * 7;
+            const filteredLabels = dailyLabels.slice(start, end);
+            const filteredPrices = dailyTariffPrices.slice(start, end);
+            const filteredConsumption = dailyEnergyConsumption.map(data => data.slice(start, end));
+
+            tariffChart.data.labels = filteredLabels;
+            tariffChart.data.datasets[0].data = filteredPrices;
+            tariffChart.update();
+
+            energyConsumptionChart.data.labels = filteredLabels;
+            energyConsumptionChart.data.datasets.forEach((dataset, index) => {
+                dataset.data = filteredConsumption[index];
+            });
+            energyConsumptionChart.update();
+        }
+
         const tariffChart = new Chart(ctx1, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: dailyLabels.slice(totalDays - 7, totalDays),
                 datasets: [{
                     label: 'Tariff Price (₹/unit)',
-                    data: prices,
+                    data: dailyTariffPrices.slice(totalDays - 7, totalDays),
                     borderColor: '#ff5733',
                     backgroundColor: 'rgba(255, 87, 51, 0.2)',
                     fill: true,
@@ -155,24 +134,16 @@
                     borderWidth: 2
                 }]
             },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { title: { display: true, text: 'Time (Last 48 hours)' } },
-                    y: { title: { display: true, text: 'Tariff Price (₹/unit)' }, min: 0, ticks: { stepSize: 1 } }
-                }
-            }
+            options: { responsive: true }
         });
 
-        // Energy Consumption Chart
-        const ctx2 = document.getElementById('energyConsumptionChart').getContext('2d');
         const energyConsumptionChart = new Chart(ctx2, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: dailyLabels.slice(totalDays - 7, totalDays),
                 datasets: products.map((product, index) => ({
                     label: product.name,
-                    data: energyConsumption[index],
+                    data: dailyEnergyConsumption[index].slice(totalDays - 7, totalDays),
                     borderColor: `hsl(${index * 45}, 100%, 50%)`,
                     backgroundColor: `rgba(${index * 45}, 70%, 50%, 0.2)`,
                     fill: true,
@@ -180,14 +151,15 @@
                     borderWidth: 2
                 }))
             },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { title: { display: true, text: 'Time (Last 48 hours)' } },
-                    y: { title: { display: true, text: 'Energy Consumption (kWh)' }, min: 0 }
-                }
-            }
+            options: { responsive: true }
         });
+
+        weekFilter.addEventListener('change', event => {
+            updateCharts(Number(event.target.value));
+        });
+
+        // Initialize charts with "This Week"
+        updateCharts(0);
     </script>
 </body>
 </html>
